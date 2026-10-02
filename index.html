@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Barsa Debbarma | 3D Visual Artist & Game Designer</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Three.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      background-color: #030712;
+      color: #f3f4f6;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    h1, h2, h3, .hud-font {
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    /* WebGL Canvas Background */
+    #canvas-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* HUD Reticles & Engine Cards */
+    .engine-card {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .engine-card:hover {
+      border-color: rgba(56, 189, 248, 0.8);
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.25);
+      transform: translateY(-4px);
+    }
+
+    .glow-text {
+      text-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
+    }
+
+    /* Corner reticle decorations */
+    .corner-reticle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-color: #38bdf8;
+    }
+    .reticle-tl { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
+    .reticle-tr { top: -1px; right: -1px; border-top: 2px solid; border-right: 2px solid; }
+    .reticle-bl { bottom: -1px; left: -1px; border-bottom: 2px solid; border-left: 2px solid; }
+    .reticle-br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #030712;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border: 1px solid #38bdf8;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="relative">
+
+  <!-- 3D Three.js Engine Canvas -->
+  <div id="canvas-container"></div>
+
+  <!-- UI HUD Overlay -->
+  <div class="relative z-10 min-h-screen flex flex-col justify-between">
+    
+    <!-- Top HUD Navigation Bar -->
+    <header class="w-full px-6 py-4 flex justify-between items-center border-b border-cyan-500/20 bg-slate-950/70 backdrop-blur-md sticky top-0 z-50">
+      <div class="flex items-center gap-3">
+        <div class="w-3 h-3 bg-cyan-400 rounded-full animate-ping"></div>
+        <span class="hud-font text-base md:text-lg tracking-widest text-cyan-400 font-bold">BARSA.DEBBARMA // HUD_v2.06</span>
+      </div>
+      <nav class="hidden md:flex gap-8 hud-font text-xs text-slate-300">
+        <a href="#about" class="hover:text-cyan-400 transition-colors">// 01. ABOUT</a>
+        <a href="#skills" class="hover:text-cyan-400 transition-colors">// 02. SKILLS</a>
+        <a href="#experience" class="hover:text-cyan-400 transition-colors">// 03. EXPERIENCE</a>
+        <a href="#education" class="hover:text-cyan-400 transition-colors">// 04. EDUCATION</a>
+      </nav>
+      <div class="text-xs hud-font text-emerald-400 border border-emerald-500/30 bg-emerald-950/30 px-3 py-1 rounded flex items-center gap-2">
+        <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+        LINE_ENDING: CRLF
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="container mx-auto px-6 py-12 flex-grow space-y-24">
+      
+      <!-- HERO SECTION -->
+      <section id="about" class="min-h-[75vh] flex flex-col justify-center items-start">
+        <div class="engine-card p-8 md:p-12 rounded-2xl max-w-4xl relative">
+          <div class="corner-reticle reticle-tl"></div>
+          <div class="corner-reticle reticle-tr"></div>
+          <div class="corner-reticle reticle-bl"></div>
+          <div class="corner-reticle reticle-br"></div>
+
+          <div class="inline-block px-3 py-1 mb-4 text-xs font-semibold tracking-wider text-cyan-400 bg-cyan-950/50 border border-cyan-500/30 rounded-full hud-font">
+            VISUAL ARTIST & 3D CREATOR
+          </div>
+          
+          <h1 class="text-4xl md:text-7xl font-extrabold mb-4 tracking-tight glow-text text-white">
+            Barsa Debbarma
+          </h1>
+          
+          <p id="hero-bio" class="text-lg md:text-xl text-slate-300 leading-relaxed mb-8 max-w-2xl">
+            <!-- Dynamically formatted with CRLF -->
+          </p>
+
+          <div class="flex flex-wrap gap-4 text-sm hud-font">
+            <a href="mailto:debbarmabarsa5@gmail.com" class="px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg transition-all shadow-lg shadow-cyan-500/20 flex items-center gap-2">
+              <i data-lucide="mail" class="w-4 h-4"></i> INITIATE CONTACT
+            </a>
+            <a href="https://www.linkedin.com/in/barsa200511" target="_blank" class="px-6 py-3 border border-slate-600 hover:border-cyan-400 text-slate-300 hover:text-white rounded-lg transition-all flex items-center gap-2">
+              <i data-lucide="linkedin" class="w-4 h-4"></i> LINKEDIN PROFILE
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- SKILLS SECTION -->
+      <section id="skills" class="space-y-6">
+        <h2 class="text-2xl md:text-3xl font-bold text-cyan-400 flex items-center gap-3">
+          <span class="text-slate-600 text-sm">// 02</span> SKILL MATRIX & TOOLKIT
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="engine-card p-6 rounded-xl border-l-4 border-l-cyan-400 relative">
+            <h3 class="text-xl font-semibold mb-4 text-white flex items-center gap-2">
+              <i data-lucide="box" class="w-5 h-5 text-cyan-400"></i> 3D & Motion
+            </h3>
+            <ul class="space-y-2 text-slate-300">
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-cyan-400 rounded-full"></span> 3D Design & Modeling[cite: 1]</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-cyan-400 rounded-full"></span> Motion Design[cite: 1]</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-cyan-400 rounded-full"></span> Adobe After Effects[cite: 1, 2]</li>
+            </ul>
+          </div>
+
+          <div class="engine-card p-6 rounded-xl border-l-4 border-l-purple-400 relative">
+            <h3 class="text-xl font-semibold mb-4 text-white flex items-center gap-2">
+              <i data-lucide="video" class="w-5 h-5 text-purple-400"></i> Video & Post-Production
+            </h3>
+            <ul class="space-y-2 text-slate-300">
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-purple-400 rounded-full"></span> Video Editing[cite: 1]</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-purple-400 rounded-full"></span> Adobe Premiere Pro[cite: 1, 2]</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-purple-400 rounded-full"></span> Colour Grading[cite: 1]</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-purple-400 rounded-full"></span> Photography & Photo Editing[cite: 1, 2]</li>
+            </ul>
+          </div>
+
+          <div class="engine-card p-6 rounded-xl border-l-4 border-l-pink-400 relative">
+            <h3 class="text-xl font-semibold mb-4 text-white flex items-center gap-2">
+              <i data-lucide="layout" class="w-5 h-5 text-pink-400"></i> Graphic & UI/UX
+            </h3>
+            <ul class="space-y-2 text-slate-300">
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-pink-400 rounded-full"></span> Graphic Design[cite: 1]</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-pink-400 rounded-full"></span> Figma Layouts[cite: 1]</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-pink-400 rounded-full"></span> Adobe Photoshop[cite: 1]</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-pink-400 rounded-full"></span> User Experience (UX)[cite: 1, 2]</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- EXPERIENCE SECTION -->
+      <section id="experience" class="space-y-6">
+        <h2 class="text-2xl md:text-3xl font-bold text-cyan-400 flex items-center gap-3">
+          <span class="text-slate-600 text-sm">// 03</span> EXPERIENCE LOGS
+        </h2>
+
+        <div class="space-y-4">
+          <div class="engine-card p-6 rounded-xl relative">
+            <div class="flex flex-col md:flex-row justify-between mb-2">
+              <h3 class="text-xl font-bold text-cyan-300">Video Editor Intern <span class="text-slate-400 text-base font-normal">@ Two Cents Studio</span>[cite: 1, 2]</h3>
+              <span class="hud-font text-xs text-slate-400 bg-slate-800 px-3 py-1 rounded w-fit">MAY 2026 – JULY 2026</span>[cite: 1, 2]
+            </div>
+            <p class="text-slate-400 text-sm mb-3">Delhi, India[cite: 2]</p>
+            <ul class="list-disc list-inside text-slate-300 space-y-1">
+              <li>Worked as a video editor intern[cite: 1].</li>
+              <li>Worked on Premiere Pro and After Effects for visual effects and editing[cite: 1].</li>
+            </ul>
+          </div>
+
+          <div class="engine-card p-6 rounded-xl relative">
+            <div class="flex flex-col md:flex-row justify-between mb-2">
+              <h3 class="text-xl font-bold text-cyan-300">Graphic Design Intern <span class="text-slate-400 text-base font-normal">@ Advasi</span>[cite: 1, 2]</h3>
+              <span class="hud-font text-xs text-slate-400 bg-slate-800 px-3 py-1 rounded w-fit">APRIL 2026 – MAY 2026</span>[cite: 1, 2]
+            </div>
+            <p class="text-slate-400 text-sm mb-3">Andhra Pradesh, India[cite: 2]</p>
+            <ul class="list-disc list-inside text-slate-300 space-y-1">
+              <li>Worked on printing and visual layout design[cite: 1].</li>
+              <li>Used Figma and Photoshop[cite: 1].</li>
+            </ul>
+          </div>
+
+          <div class="engine-card p-6 rounded-xl relative">
+            <div class="flex flex-col md:flex-row justify-between mb-2">
+              <h3 class="text-xl font-bold text-cyan-300">Freelance Video & Photo Editor</h3>
+              <span class="hud-font text-xs text-slate-400 bg-slate-800 px-3 py-1 rounded w-fit">JAN 2025 – JAN 2026</span>[cite: 2]
+            </div>
+            <p class="text-slate-400 text-sm mb-3">Perth, WA[cite: 2]</p>
+            <p class="text-slate-300">Delivered freelance media editing and commercial photography processing[cite: 1, 2].</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- EDUCATION SECTION -->
+      <section id="education" class="space-y-6 pb-12">
+        <h2 class="text-2xl md:text-3xl font-bold text-cyan-400 flex items-center gap-3">
+          <span class="text-slate-600 text-sm">// 04</span> EDUCATION DATA
+        </h2>
+
+        <div class="engine-card p-6 rounded-xl relative">
+          <h3 class="text-xl font-bold text-white">Bachelor of Vocation (B.Voc), Digital Media and Animation</h3>
+          <p class="text-cyan-400 text-sm">St. Joseph's University (2024 – Present)</p>[cite: 1, 2]
+          <p class="text-slate-400 text-sm mt-2">Focused on 3D graphics, animation pipeline, and digital storytelling[cite: 1].</p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full py-6 text-center text-slate-500 text-xs hud-font border-t border-slate-800/80 bg-slate-950/80">
+      <p>© 2026 BARSA DEBBARMA // SYSTEM ONLINE // EOL ENFORCED: CRLF (\r\n)</p>
+    </footer>
+
+  </div>
+
+  <!-- SCRIPT ENGINE WITH AUTOMATIC LF TO CRLF CONVERSION -->
+  <script>
+    // --- UTILITY: LF (\n) to CRLF (\r\n) CONVERTER ---
+    function convertToCRLF(text) {
+      if (typeof text !== 'string') return text;
+      // Replace any LF not preceded by CR with CRLF
+      return text.replace(/\r?\n/g, "\r\n");
+    }
+
+    // Set Bio Text dynamically with enforced CRLF formatting
+    const rawBio = "I'm a creative and passionate visual artist with skills in video editing, photography, graphic design, and 3D art.\nI enjoy turning ideas into engaging visuals and telling stories through different forms of media.\nI'm always interested in learning new techniques, exploring creative ideas, and improving my work.";
+    const crlfBio = convertToCRLF(rawBio);
+    document.getElementById('hero-bio').innerText = crlfBio;
+
+    // Initialize Lucide Icons safely
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    });
+
+    // --- THREE.JS GAMING / UNREAL ENVIRONMENT ENGINE ---
+    (function initThreeJS() {
+      const container = document.getElementById('canvas-container');
+      if (!container || !window.THREE) return;
+
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x030712, 0.035);
+
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 1.5, 10);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(renderer.domElement);
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0x0f172a, 1.5);
+      scene.add(ambientLight);
+
+      const cyanLight = new THREE.PointLight(0x38bdf8, 3, 50);
+      cyanLight.position.set(5, 5, 5);
+      scene.add(cyanLight);
+
+      const purpleLight = new THREE.PointLight(0xa855f7, 3, 50);
+      purpleLight.position.set(-5, -2, 2);
+      scene.add(purpleLight);
+
+      // Grid Floor
+      const gridHelper = new THREE.GridHelper(60, 60, 0x38bdf8, 0x1e293b);
+      gridHelper.position.y = -3;
+      scene.add(gridHelper);
+
+      // Central Interactive Object (Wireframe Torus Knot)
+      const geometry = new THREE.TorusKnotGeometry(1.5, 0.4, 100, 16);
+      const material = new THREE.MeshStandardMaterial({
+        color: 0x0f172a,
+        wireframe: true,
+        emissive: 0x38bdf8,
+        emissiveIntensity: 0.4,
+        roughness: 0.2,
+        metalness: 0.8
+      });
+      const coreMesh = new THREE.Mesh(geometry, material);
+      coreMesh.position.set(3, 1, -2);
+      scene.add(coreMesh);
+
+      // Particle System
+      const particleCount = 600;
+      const particleGeo = new THREE.BufferGeometry();
+      const positions = new Float32Array(particleCount * 3);
+
+      for (let i = 0; i < particleCount * 3; i += 3) {
+        positions[i] = (Math.random() - 0.5) * 40;
+        positions[i + 1] = (Math.random() - 0.5) * 40;
+        positions[i + 2] = (Math.random() - 0.5) * 40;
+      }
+
+      particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      
+      const particleMat = new THREE.PointsMaterial({
+        color: 0x38bdf8,
+        size: 0.05,
+        transparent: true,
+        opacity: 0.6
+      });
+
+      const particleSystem = new THREE.Points(particleGeo, particleMat);
+      scene.add(particleSystem);
+
+      // Mouse Parallax Interactivity
+      let mouseX = 0;
+      let mouseY = 0;
+      let targetX = 0;
+      let targetY = 0;
+
+      const windowHalfX = window.innerWidth / 2;
+      const windowHalfY = window.innerHeight / 2;
+
+      document.addEventListener('mousemove', (event) => {
+        mouseX = (event.clientX - windowHalfX) / 100;
+        mouseY = (event.clientY - windowHalfY) / 100;
+      });
+
+      // Animation Loop
+      const clock = new THREE.Clock();
+
+      function animate() {
+        requestAnimationFrame(animate);
+
+        const elapsedTime = clock.getElapsedTime();
+
+        targetX += (mouseX - targetX) * 0.05;
+        targetY += (mouseY - targetY) * 0.05;
+
+        camera.position.x = targetX * 0.5;
+        camera.position.y = 1.5 - (targetY * 0.5);
+        camera.lookAt(0, 0, 0);
+
+        coreMesh.rotation.x = elapsedTime * 0.2;
+        coreMesh.rotation.y = elapsedTime * 0.3;
+        coreMesh.position.y = Math.sin(elapsedTime) * 0.4 + 0.5;
+
+        particleSystem.rotation.y = elapsedTime * 0.02;
+
+        cyanLight.intensity = 2 + Math.sin(elapsedTime * 2) * 1;
+        purpleLight.intensity = 2 + Math.cos(elapsedTime * 1.5) * 1;
+
+        renderer.render(scene, camera);
+      }
+
+      animate();
+
+      // Window Resize Listener
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    })();
+  </script>
+</body>
+</html>
